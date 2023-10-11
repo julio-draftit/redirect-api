@@ -1,0 +1,13 @@
+FROM golang:1.21-alpine
+
+RUN apk update && apk add --no-cache
+RUN apk add curl
+
+WORKDIR /app
+
+RUN go install github.com/cosmtrek/air@latest
+
+CMD ["air", "-c", ".air.toml"]
+
+
+

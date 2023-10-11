@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  go_redirect:
+    build:
+      context: .
+      dockerfile: ./.docker/go/Dockerfile.dev
+    container_name: go_redirect
+    volumes:
+      - .:/app
+    tty: true
+    network_mode: host
+
+volumes:
+  my-db:
