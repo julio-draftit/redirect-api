@@ -1,25 +1,29 @@
 package site
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/Projects-Bots/redirect/infrastructure/service/access"
 	"github.com/Projects-Bots/redirect/infrastructure/service/redirect"
 	"github.com/Projects-Bots/redirect/infrastructure/service/url"
+	"github.com/Projects-Bots/redirect/infrastructure/service/user"
 	"github.com/gin-gonic/gin"
-	"log"
-	"net/http"
 )
 
 type Handler struct {
 	urlService      url.UrlService
 	redirectService redirect.RedirectService
 	accessService   access.AccessService
+	userService     user.UserService
 }
 
-func NewHandler(service url.UrlService, redirectService redirect.RedirectService, accessService access.AccessService) *Handler {
+func NewHandler(service url.UrlService, redirectService redirect.RedirectService, accessService access.AccessService, userService user.UserService) *Handler {
 	return &Handler{
 		urlService:      service,
 		redirectService: redirectService,
 		accessService:   accessService,
+		userService:     userService,
 	}
 }
 
