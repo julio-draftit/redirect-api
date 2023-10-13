@@ -7,7 +7,11 @@ import (
 
 	urlService "github.com/Projects-Bots/redirect/infrastructure/service/url"
 
+	reportSrv "github.com/Projects-Bots/redirect/infrastructure/service/report"
+
 	coreUrl "github.com/Projects-Bots/redirect/internal/core/url"
+
+	reportUrl "github.com/Projects-Bots/redirect/internal/core/report"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,6 +23,22 @@ func urlGET(c *gin.Context, urlSrv *urlService.UrlService) {
 	}
 
 	urls, err := urlSrv.GetAllUrlsByUser(c, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to fetch URLs for user: %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, urls)
+}
+
+func urlReports(c *gin.Context, reportSrv *reportSrv.ReportService) {
+	var userid reportUrl.Report
+	if err := c.BindJSON(&userid); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	urls, err := reportSrv.Reports(c, userid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to fetch URLs for user: %v", err)})
 		return

@@ -2,6 +2,7 @@ package redirect
 
 import (
 	"context"
+
 	entity "github.com/Projects-Bots/redirect/internal/core/redirect"
 )
 
@@ -13,8 +14,8 @@ func NewRedirectService(repository entity.NewRedirectRepositoryInterface) *Redir
 	return &RedirectService{repository: repository}
 }
 
-func (s RedirectService) GetUrl(ctx context.Context, urlID int) (*entity.Redirect, error) {
-	return s.GetNextUrl(ctx, urlID)
+func (s RedirectService) GetUrl(ctx context.Context, urlID int, random bool) (*entity.Redirect, error) {
+	return s.GetNextUrl(ctx, urlID, random)
 }
 
 func (s RedirectService) UpdateUrl(ctx context.Context, id int) error {
@@ -25,8 +26,8 @@ func (s RedirectService) ResetHitsUrl(ctx context.Context, urlID int) error {
 	return s.repository.ResetHitsUrl(ctx, urlID)
 }
 
-func (s RedirectService) GetNextUrl(ctx context.Context, urlID int) (*entity.Redirect, error) {
-	redirect, err := s.repository.GetUrl(ctx, urlID)
+func (s RedirectService) GetNextUrl(ctx context.Context, urlID int, random bool) (*entity.Redirect, error) {
+	redirect, err := s.repository.GetUrl(ctx, urlID, random)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +38,7 @@ func (s RedirectService) GetNextUrl(ctx context.Context, urlID int) (*entity.Red
 			return nil, err
 		}
 
-		redirect, err = s.GetUrl(ctx, urlID)
+		redirect, err = s.GetUrl(ctx, urlID, random)
 		if err != nil {
 			return nil, err
 		}

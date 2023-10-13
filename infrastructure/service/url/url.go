@@ -3,7 +3,6 @@ package url
 import (
 	"context"
 
-	coreUrl "github.com/Projects-Bots/redirect/internal/core/url"
 	entity "github.com/Projects-Bots/redirect/internal/core/url"
 )
 
@@ -27,6 +26,6 @@ func (s *UrlService) AddUrl(ctx context.Context, url entity.Url) (*entity.Url, e
 func (s *UrlService) UpdateUrl(ctx context.Context, id int, url entity.Url) (*entity.Url, error) {
 	return s.repository.UpdateUrl(ctx, id, url)
 }
-func (s *UrlService) DeleteUrl(ctx context.Context, id int) (*coreUrl.Url, error) {
+func (s *UrlService) DeleteUrl(ctx context.Context, id int) (*entity.Url, error) {
 	return s.repository.DeleteUrl(ctx, id)
 }

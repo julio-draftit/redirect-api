@@ -12,10 +12,12 @@ import (
 	"github.com/Projects-Bots/redirect/infrastructure/database"
 	"github.com/Projects-Bots/redirect/infrastructure/repository/access"
 	"github.com/Projects-Bots/redirect/infrastructure/repository/redirect"
+	"github.com/Projects-Bots/redirect/infrastructure/repository/report"
 	"github.com/Projects-Bots/redirect/infrastructure/repository/url"
 	"github.com/Projects-Bots/redirect/infrastructure/repository/user"
 	accessService "github.com/Projects-Bots/redirect/infrastructure/service/access"
 	redirectService "github.com/Projects-Bots/redirect/infrastructure/service/redirect"
+	reportService "github.com/Projects-Bots/redirect/infrastructure/service/report"
 	urlService "github.com/Projects-Bots/redirect/infrastructure/service/url"
 	userService "github.com/Projects-Bots/redirect/infrastructure/service/user"
 	"github.com/Projects-Bots/redirect/infrastructure/web/site"
@@ -23,19 +25,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func initServices(db *sql.DB) (*urlService.UrlService, *redirectService.RedirectService, *accessService.AccessService, *userService.UserService) {
+func initServices(db *sql.DB) (*urlService.UrlService, *redirectService.RedirectService, *accessService.AccessService, *userService.UserService, *reportService.ReportService) {
 	urlRepository := url.NewUrlRepository(db)
 	redirectRepository := redirect.NewRedirectRepository(db)
 	accessRepository := access.NewAccessRepository(db)
 	userRepository := user.NewUserRepository(db)
+	reportRepository := report.NewReportRepository(db)
 
 	return urlService.NewUrlService(urlRepository),
 		redirectService.NewRedirectService(redirectRepository),
 		accessService.NewAccessService(accessRepository),
-		userService.NewUserService(userRepository)
+		userService.NewUserService(userRepository),
+		reportService.NewReportService(reportRepository)
 }
 
-func setupRouter(urlSrv *urlService.UrlService, redirectSrv *redirectService.RedirectService, accessSrv *accessService.AccessService, userSrv *userService.UserService) *gin.Engine {
+func setupRouter(urlSrv *urlService.UrlService, redirectSrv *redirectService.RedirectService, accessSrv *accessService.AccessService, userSrv *userService.UserService, reportSrv *reportService.ReportService) *gin.Engine {
 	router := gin.Default()
 
 	router.SetFuncMap(template.FuncMap{
@@ -54,6 +58,10 @@ func setupRouter(urlSrv *urlService.UrlService, redirectSrv *redirectService.Red
 	{
 		urlGroup.GET("/users/:userID", func(c *gin.Context) {
 			urlGET(c, urlSrv)
+		})
+
+		urlGroup.POST("/users/reports", func(c *gin.Context) {
+			urlReports(c, reportSrv)
 		})
 
 		urlGroup.POST("/", func(c *gin.Context) {
@@ -96,7 +104,7 @@ func setupRouter(urlSrv *urlService.UrlService, redirectSrv *redirectService.Red
 		})
 	}
 
-	site.NewHandler(*urlSrv, *redirectSrv, *accessSrv, *userSrv).AddRouter(router)
+	site.NewHandler(*urlSrv, *redirectSrv, *accessSrv, *userSrv, *reportSrv).AddRouter(router)
 
 	return router
 }
@@ -108,8 +116,8 @@ func Handler() {
 	}
 	defer db.Close()
 
-	urlSrv, redirectSrv, accessSrv, userSrv := initServices(db)
-	router := setupRouter(urlSrv, redirectSrv, accessSrv, userSrv)
+	urlSrv, redirectSrv, accessSrv, userSrv, reportSrv := initServices(db)
+	router := setupRouter(urlSrv, redirectSrv, accessSrv, userSrv, reportSrv)
 
 	port := os.Getenv("PORT")
 	if port == "" {

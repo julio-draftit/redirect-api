@@ -3,6 +3,7 @@ package redirect
 import (
 	"context"
 	"database/sql"
+
 	entity "github.com/Projects-Bots/redirect/internal/core/redirect"
 )
 
@@ -16,20 +17,29 @@ func NewRedirectRepository(db *sql.DB) *RedirectRepository {
 	}
 }
 
-func (r RedirectRepository) GetUrl(ctx context.Context, urlID int) (*entity.Redirect, error) {
-	sql := `
-	SELECT r.id, r.url_id, r.url, r.hits, r.limit_hits
-	FROM redirects r 
-	INNER JOIN urls u  ON u.id = r.url_id 
-	INNER JOIN users us ON us.id = u.user_id 
-	WHERE r.url_id = ?
-	AND hits < limit_hits 
-	AND r.deleted_at IS NULL
-	AND u.deleted_at IS NULL
-	AND us.deleted_at IS NULL
-	LIMIT 1
-`
-	row, err := r.db.Query(sql, urlID)
+func (r RedirectRepository) GetUrl(ctx context.Context, urlID int, random bool) (*entity.Redirect, error) {
+	baseSql := `
+		SELECT r.id, r.url_id, r.url, r.hits, r.limit_hits
+		FROM redirects r 
+		INNER JOIN urls u ON u.id = r.url_id 
+		INNER JOIN users us ON us.id = u.user_id 
+		WHERE r.url_id = ?
+		AND hits < limit_hits 
+		AND r.deleted_at IS NULL
+		AND u.deleted_at IS NULL
+		AND us.deleted_at IS NULL
+	`
+
+	orderSql := ""
+	if random {
+		orderSql = "ORDER BY RAND()"
+	}
+
+	limitSql := "LIMIT 1"
+
+	finalSql := baseSql + orderSql + limitSql
+
+	row, err := r.db.Query(finalSql, urlID)
 	if err != nil {
 		return nil, err
 	}

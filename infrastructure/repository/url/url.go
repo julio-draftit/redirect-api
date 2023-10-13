@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 
-	coreUrl "github.com/Projects-Bots/redirect/internal/core/url"
 	entity "github.com/Projects-Bots/redirect/internal/core/url"
 )
 
@@ -188,7 +187,7 @@ func (r *UrlRepository) UpdateUrl(ctx context.Context, id int, url entity.Url) (
 	return &updatedUrl, nil
 }
 
-func (r *UrlRepository) DeleteUrl(ctx context.Context, id int) (*coreUrl.Url, error) {
+func (r *UrlRepository) DeleteUrl(ctx context.Context, id int) (*entity.Url, error) {
 
 	query := "UPDATE urls SET deleted_at = NOW() WHERE id = ?"
 
@@ -204,8 +203,8 @@ func (r *UrlRepository) DeleteUrl(ctx context.Context, id int) (*coreUrl.Url, er
 
 	return url, nil
 }
-func (r *UrlRepository) GetUrlById(ctx context.Context, id int) (*coreUrl.Url, error) {
-	var url coreUrl.Url
+func (r *UrlRepository) GetUrlById(ctx context.Context, id int) (*entity.Url, error) {
+	var url entity.Url
 	query := "SELECT id, user_id, name, url, pixel, random, created_at, updated_at, deleted_at FROM urls WHERE id = ?"
 	err := r.db.QueryRowContext(ctx, query, id).Scan(&url.ID, &url.UserID, &url.Name, &url.Url, &url.Pixel, &url.Random, &url.CreatedAt, &url.UpdatedAt, &url.DeletedAt)
 	if err != nil {
@@ -219,9 +218,9 @@ func (r *UrlRepository) GetUrlById(ctx context.Context, id int) (*coreUrl.Url, e
 	}
 	defer rows.Close()
 
-	var redirects []coreUrl.Redirect
+	var redirects []entity.Redirect
 	for rows.Next() {
-		var redirect coreUrl.Redirect
+		var redirect entity.Redirect
 		if err := rows.Scan(&redirect.URL, &redirect.Hits, &redirect.LimitHits); err != nil {
 			return nil, err
 		}

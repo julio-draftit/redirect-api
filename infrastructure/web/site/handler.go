@@ -6,6 +6,7 @@ import (
 
 	"github.com/Projects-Bots/redirect/infrastructure/service/access"
 	"github.com/Projects-Bots/redirect/infrastructure/service/redirect"
+	"github.com/Projects-Bots/redirect/infrastructure/service/report"
 	"github.com/Projects-Bots/redirect/infrastructure/service/url"
 	"github.com/Projects-Bots/redirect/infrastructure/service/user"
 	"github.com/gin-gonic/gin"
@@ -16,14 +17,16 @@ type Handler struct {
 	redirectService redirect.RedirectService
 	accessService   access.AccessService
 	userService     user.UserService
+	reportService   report.ReportService
 }
 
-func NewHandler(service url.UrlService, redirectService redirect.RedirectService, accessService access.AccessService, userService user.UserService) *Handler {
+func NewHandler(service url.UrlService, redirectService redirect.RedirectService, accessService access.AccessService, userService user.UserService, reportService report.ReportService) *Handler {
 	return &Handler{
 		urlService:      service,
 		redirectService: redirectService,
 		accessService:   accessService,
 		userService:     userService,
+		reportService:   reportService,
 	}
 }
 
@@ -51,7 +54,12 @@ func (h *Handler) Redirect(c *gin.Context) {
 		return
 	}
 
-	redirect, err := h.redirectService.GetUrl(c, u.ID)
+	if u.Random == nil {
+		val := false
+		u.Random = &val
+	}
+
+	redirect, err := h.redirectService.GetUrl(c, u.ID, *u.Random)
 	if err != nil {
 		h.pageError(c, "Que pena!", "Ocorreu um erro ao processar a página")
 		return
