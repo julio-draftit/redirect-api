@@ -66,7 +66,7 @@ func (r *UserRepository) Auth(ctx context.Context, user entity.User) (*entity.Us
 }
 func (r *UserRepository) ListUser(ctx context.Context) ([]entity.User, error) {
 	sql := `
-		SELECT id, name, email, admin, deleted_at 
+		SELECT id, name, email, admin, created_at, updated_at, deleted_at 
 		FROM users
 	`
 
@@ -79,7 +79,7 @@ func (r *UserRepository) ListUser(ctx context.Context) ([]entity.User, error) {
 	var users []entity.User
 	for rows.Next() {
 		var user entity.User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Admin, &user.DeletedAt); err != nil {
+		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Admin, &user.CreatedAt, &user.UpdatedAt, &user.DeletedAt); err != nil {
 			return nil, err
 		}
 		users = append(users, user)
