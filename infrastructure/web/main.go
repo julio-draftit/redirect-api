@@ -22,6 +22,7 @@ import (
 	userService "github.com/Projects-Bots/redirect/infrastructure/service/user"
 	"github.com/Projects-Bots/redirect/infrastructure/web/site"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,6 +42,14 @@ func initServices(db *sql.DB) (*urlService.UrlService, *redirectService.Redirect
 
 func setupRouter(urlSrv *urlService.UrlService, redirectSrv *redirectService.RedirectService, accessSrv *accessService.AccessService, userSrv *userService.UserService, reportSrv *reportService.ReportService) *gin.Engine {
 	router := gin.Default()
+
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization"}
+	config.AllowCredentials = true
+
+	router.Use(cors.New(config))
 
 	router.SetFuncMap(template.FuncMap{
 		"upper": strings.ToUpper,
